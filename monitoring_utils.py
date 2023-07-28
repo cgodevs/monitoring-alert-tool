@@ -84,17 +84,16 @@ def send_query_to_bq(query, msg=None):
 # ----------------------- VERIFICATION FUNCTIONS --------------------
 # -------------------------------------------------------------------
 
-
-def get_missing_controls(controls: list, new_snapshot: pd.DataFrame):
-    target_column, link, monitored_controls = controls[0].name, controls[0].link, controls[0].values
-    controls_in_new_table = new_snapshot[target_column].drop_duplicates().to_list()
-    missing_controls = None
+def get_missing_keys(controls: list, new_snapshot: pd.DataFrame):
+    target_column, link, monitored_keys = controls[0].name, controls[0].link, controls[0].values
+    keys_in_new_table = new_snapshot[target_column].drop_duplicates().to_list()
+    missing_keys = None
     if link == "equals":
-        missing_controls = [control for control in monitored_controls if control not in controls_in_new_table]
+        missing_keys = [key for key in monitored_keys if key not in keys_in_new_table]
     elif link == "contains":
-        missing_controls = [control for control in monitored_controls if
-                            not any(control in value for value in controls_in_new_table)]
-    return missing_controls
+        missing_keys = [key for key in monitored_keys if
+                            not any(key in value for value in keys_in_new_table)]
+    return missing_keys
 
 
 def get_missing_rows(old_snapshot: pd.DataFrame, new_filtered_table: pd.DataFrame):
@@ -115,8 +114,8 @@ def equals_all_but_conditions(this_row, other_row, conditions):
     return False
 
 
-def get_modified_controls(missing_monitored_rows: list, filtered_database: list, conditions: list):
-    modified_controls = []
+def get_modified_keys(missing_monitored_rows: list, filtered_database: list, conditions: list):
+    modified_keys = []
     for missing_row in missing_monitored_rows:
         for filtered_row in filtered_database:
             if equals_all_but_conditions(missing_row, filtered_row, conditions):
@@ -132,8 +131,9 @@ def get_modified_controls(missing_monitored_rows: list, filtered_database: list,
                                                     if missing_row[condition] != filtered_row[condition]
                                                 }
                 }
-                modified_controls.append(change_info)
-    return modified_controls
+                modified_keys.append(change_info)
+    return modified_keys
+
 
 
 def get_modified_conditions(conditions, target_columns, old_snapshot: pd.DataFrame, new_filtered_table: pd.DataFrame):

@@ -35,31 +35,31 @@ for index, row in monitorings_df.iterrows():
         continue
 
     if monitoring.controls_option == "keys":
-        missing_controls, modified_controls = None, None
+        missing_keys, modified_keys = None, None
         target_column = monitoring.controls[0].name  # there is only 1 column for control when controls_option == "keys"
 
-        if "missing_control" in monitoring.monitored_changes:
-            missing_controls = get_missing_controls(monitoring.controls, new_table.snapshot)
-            if missing_controls:
-                if monitoring.control_removal_action == "remove":
-                    monitoring.remove_missing_controls(missing_controls)  # controls in new_table are already gone
+        if "missing_keys" in monitoring.monitored_changes:
+            missing_keys = get_missing_keys(monitoring.controls, new_table.snapshot)
+            if missing_keys:
+                if monitoring.key_removal_action == "remove":
+                    monitoring.remove_missing_keys(missing_keys)  # controls in new_table are already gone
                     monitoring.update_self_to_database()
-                email_builder.add_to_body("missing_controls", missing_controls)
+                email_builder.add_to_body("missing_keys", missing_keys)
 
-        if "modified_control" in monitoring.monitored_changes:
+        if "modified_keys" in monitoring.monitored_changes:
             missing_rows = get_missing_rows(old_table.snapshot, new_table.snapshot)
-            modified_controls = get_modified_controls(missing_rows.to_dict("records"),
+            modified_keys = get_modified_keys(missing_rows.to_dict("records"),
                                                       new_table.snapshot.to_dict("records"),
                                                       monitoring.conditions)
-            if modified_controls:
+            if modified_keys:
                 if monitoring.condition_change_action == "remove":
-                    controls_to_remove = [row["older_row"][target_column] for row in modified_controls]
-                    monitoring.remove_missing_controls(controls_to_remove)
+                    keys_to_remove = [row["older_row"][target_column] for row in modified_keys]
+                    monitoring.remove_missing_keys(keys_to_remove)
                     monitoring.update_self_to_database()
-                new_table.remove_changed_controls(modified_controls, target_column)
-                email_builder.add_to_body("modified_controls", modified_controls)
+                new_table.remove_modified_keys(modified_keys, target_column)
+                email_builder.add_to_body("modified_keys", modified_keys)
 
-        if missing_controls or modified_controls:
+        if missing_keys or modified_keys:
             new_table.update_self_to_bq()
 
     elif monitoring.controls_option == "filters":

@@ -40,8 +40,8 @@ EMAIL_BODY = '''
                      <br>
                      <hr>
                      <br>
-                     <!--MISSING_CONTROL-->
-                     <!--MODIFIED_CONTROLS-->
+                     <!--MISSING_KEYS-->
+                     <!--MODIFIED_KEYS-->
                      <!--FILTERS_MONITORING_INTRODUCTION-->
                      <!--NEW_CONDITIONS-->
                      <!--MISSING_CONDITIONS-->
@@ -55,29 +55,29 @@ EMAIL_BODY = '''
 </html>
 '''
 
-MISSING_CONTROLS_HTML = '''
-<div><font size="4"><b>Saída de controle(s) monitorado(s)&nbsp;</b></font></div>
-<div>Não foram identificados um ou mais controles monitorados. Abaixo seguem os controles não encontrados.</div>
+MISSING_KEYS_HTML = '''
+<div><font size="4"><b>Saída de chave(s) monitorada(s)&nbsp;</b></font></div>
+<div>Não foram identificadas uma ou mais chaves monitoradas. Abaixo seguem aquelas não encontradas.</div>
 <div>
    <ul>
       LIST_ITEM
    </ul>
 </div>
-<!--CONTROLS_WERE_REMOVED-->
+<!--KEYS_WERE_REMOVED-->
 <div><br></div>
 <div><br></div>
 '''
 
-CONTROLS_WERE_REMOVED_FROM_MONITORING = '<div>Os controles não encontrados foram removidos de sua lista de controles monitorados.</div>'
-REMOVED_MODIFIED_CONDITIONS_CONTROLS = '<div>Os controles com condições alteradas foram removidos da sua lista monitorada.</div>'
+KEYS_WERE_REMOVED_FROM_MONITORING = '<div>As chaves não encontradas foram removidas de sua lista de chaves monitoradas.</div>'
+REMOVED_MODIFIED_CONDITIONS_KEYS = '<div>As chaves alteradas foram removidas de sua monitoria.</div>'
 
 HTML_UL = '''
 <div>
-   <div><font size="4"><b>Alteração em controle monitorado</b></font></div>
-   <div>Um ou mais dos controles monitorados sofreram alterações. Abaixo seguem as alterações identificadas.</div>
+   <div><font size="4"><b>Alteração em chave monitorada</b></font></div>
+   <div>Uma ou mais chaves monitoradas sofreram alterações. Abaixo seguem as alterações encontradas.</div>
    <div>
-      <!--MODIFIED_CONTROLS_LIST-->
-      <!--CONTROLS_WERE_MODIFIED-->
+      <!--MODIFIED_KEYS_LIST-->
+      <!--KEYS_WERE_MODIFIED-->
    </div>
 </div>
 <div><br></div>
@@ -105,10 +105,10 @@ COMPARISON_TABLE = '''
 </table>
 '''
 
-MODIFIED_CONTROLS_LIST = '''
+MODIFIED_KEYS_LIST = '''
 <ul>
-<li>Controle: <b><!--CONTROL--></b></li>
-<li>Alteração: <!--CONTROL_MODIFICATION--></li>
+<li>Chave: <b><!--KEY--></b></li>
+<li>Alteração: <!--KEY_MODIFICATION--></li>
 </ul>
 <!--COMPARISON_TABLE-->
 <div><br></div>
@@ -158,18 +158,17 @@ MODIFIED_CONDITIONS_TABLE = '''
 snippets = {
     "TITLE": "Sua monitoria encontrou alterações: ",
     "EMAIL_BODY": EMAIL_BODY,
-    "MISSING_CONTROLS_HTML": MISSING_CONTROLS_HTML,
-    "CONTROLS_WERE_REMOVED_FROM_MONITORING": CONTROLS_WERE_REMOVED_FROM_MONITORING,
-    "REMOVED_MODIFIED_CONDITIONS_CONTROLS": REMOVED_MODIFIED_CONDITIONS_CONTROLS,
+    "MISSING_KEYS_HTML": MISSING_KEYS_HTML,
+    "KEYS_WERE_REMOVED_FROM_MONITORING": KEYS_WERE_REMOVED_FROM_MONITORING,
+    "REMOVED_MODIFIED_CONDITIONS_KEYS": REMOVED_MODIFIED_CONDITIONS_KEYS,
     "HTML_UL": HTML_UL,
     "COMPARISON_TABLE": COMPARISON_TABLE,
-    "MODIFIED_CONTROLS_LIST": MODIFIED_CONTROLS_LIST,
+    "MODIFIED_KEYS_LIST": MODIFIED_KEYS_LIST,
     "MODIFIED_CONDITION_PARAGRAPH": MODIFIED_CONDITION_PARAGRAPH,
-    "NEW_CONDITION_FOUND": NEW_CONDITION_FOUND,
     "MISSING_CONDITION_FOUND": MISSING_CONDITION_FOUND,
     "NEW_CONDITION_FOUND": NEW_CONDITION_FOUND,
     "MODIFIED_CONDITIONS_TABLE": MODIFIED_CONDITIONS_TABLE,
-    "CONTROL_PT_TRANSLATION": {'keys': 'controles', 'filters': 'filtros'},
+    "CONTROL_PT_TRANSLATION": {'keys': 'chaves', 'filters': 'filtros'},
     "LINK_PT_SYNTAX": {'equals': 'igual a ', 'contains': 'contém'},
     "CURRENT_CONDITIONS": "<br><br>Condições atuais dos controles não encontrados: <br> "
 }

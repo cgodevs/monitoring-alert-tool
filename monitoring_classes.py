@@ -4,10 +4,6 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import re
-import googleapiclient.discovery
-from botocore.exceptions import ClientError
-from datetime import datetime
-import pandas_gbq
 
 
 class MonitoringSettings:
@@ -17,9 +13,9 @@ class MonitoringSettings:
         self.__dict__.update(self.json_settings)
         self.controls = [Control(control) for control in self.json_settings["controls"]]
 
-    def remove_missing_controls(self, missing_controls):
+    def remove_missing_keys(self, missing_keys):
         monitored_control_values = [value for value in self.json_settings["controls"][0]["control_values"]
-                                    if value not in missing_controls]
+                                    if value not in missing_keys]
         self.json_settings["controls"][0]["control_values"] = monitored_control_values
 
     def update_self_to_database(self):
@@ -64,7 +60,7 @@ class TableSnapshot:
                 f"VALUES ({self.monitoring_id}, CURRENT_TIMESTAMP(), 0, JSON '{self.get_json_string()}')"
         send_query_to_bq(query, f"monitoring_id = {self.monitoring_id} snapshot's been saved to BQ")
 
-    def remove_changed_controls(self, changed_rows, control_name):
+    def remove_modified_keys(self, changed_rows, control_name):
         self.snapshot_dicts = [row for row in self.snapshot_dicts
                                for change in changed_rows
                                if row[control_name] != change["newer_row"][control_name]]
@@ -101,18 +97,18 @@ class EmailBuilder:
         self.changes_found = True
         if self.monitoring.controls_option == 'keys':
             match change_type:
-                case "missing_controls":
-                    all_missing_controls_li = '\n'.join(['<li>control</li>'.replace('control', c) for c in changes])
-                    self.insert("<!--MISSING_CONTROL-->", snippets["MISSING_CONTROLS_HTML"])
-                    self.insert("LIST_ITEM", all_missing_controls_li)
-                    if self.monitoring.control_removal_action == "remove":
-                        self.insert('<!--CONTROLS_WERE_REMOVED-->', snippets["CONTROLS_WERE_REMOVED_FROM_MONITORING"])
+                case "missing_keys":
+                    all_missing_keys_li = '\n'.join([f'<li>{key}</li>' for key in changes])
+                    self.insert("<!--MISSING_KEYS-->", snippets["MISSING_KEYS_HTML"])
+                    self.insert("LIST_ITEM", all_missing_keys_li)
+                    if self.monitoring.key_removal_action == "remove":
+                        self.insert('<!--KEYS_WERE_REMOVED-->', snippets["KEYS_WERE_REMOVED_FROM_MONITORING"])
 
-                case "modified_controls":
+                case "modified_keys":
                     control_name = self.monitoring.controls[0].name
-                    modified_controls_list = []
+                    modified_keys_list = []
                     for change in changes:
-                        modified_control_li = change['older_row'][control_name]
+                        modified_key_li = change['older_row'][control_name]
                         modified_conditions = list(change['current_state_conditions'].keys())
                         columns = [col for col in change['older_row'].keys() if col in self.monitoring.conditions] + \
                                   [control_name] + self.monitoring.other_reported_conditions
@@ -128,19 +124,19 @@ class EmailBuilder:
                         comparison_table = snippets["COMPARISON_TABLE"] \
                             .replace('<!--TABLE_HEADERS-->', headers) \
                             .replace('<!--PREVIOUS_RECORD_TDS-->', previous_records) \
-                            .replace('<!--CURRENT_RECORD_TDS-->', current_records)  # TODO UNINDENT?
+                            .replace('<!--CURRENT_RECORD_TDS-->', current_records)
 
-                        info = snippets["MODIFIED_CONTROLS_LIST"] \
-                            .replace('<!--CONTROL-->', modified_control_li) \
-                            .replace('<!--CONTROL_MODIFICATION-->', ', '.join(modified_conditions)) \
+                        info = snippets["MODIFIED_KEYS_LIST"] \
+                            .replace('<!--KEY-->', modified_key_li) \
+                            .replace('<!--KEY_MODIFICATION-->', ', '.join(modified_conditions)) \
                             .replace('<!--COMPARISON_TABLE-->', comparison_table)
-                        modified_controls_list.append(info)
+                        modified_keys_list.append(info)
 
-                    self.insert("<!--MODIFIED_CONTROLS-->", snippets["HTML_UL"])
-                    self.insert("<!--MODIFIED_CONTROLS_LIST-->", '\n'.join(modified_controls_list))
+                    self.insert("<!--MODIFIED_KEYS-->", snippets["HTML_UL"])
+                    self.insert("<!--MODIFIED_KEYS_LIST-->", '\n'.join(modified_keys_list))
 
                     if self.monitoring.condition_change_action == "remove":
-                        self.insert("<!--CONTROLS_WERE_MODIFIED-->", snippets["REMOVED_MODIFIED_CONDITIONS_CONTROLS"])
+                        self.insert("<!--KEYS_WERE_MODIFIED-->", snippets["REMOVED_MODIFIED_CONDITIONS_KEYS"])
 
         elif self.monitoring.controls_option == 'filters':
             columns_to_report = self.monitoring.conditions + self.monitoring.other_reported_conditions + \
